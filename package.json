@@ -1,0 +1,17 @@
+{
+  "name": "rearrangeDir",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "ejsexcel": "^3.4.7",
+    "mongoose": "^4.11.5",
+    "node-xlsx": "^0.11.0"
+  }
+}
