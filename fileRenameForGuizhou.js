@@ -57,8 +57,8 @@
     bundleName: bundleName,
     totalVideos: totalVideos,
     bundleId: '脆牛',
-    copyStart: '2017-04-01',
-    copyEnd: '2030-04-01'
+    copyStart: '2017-11-22',
+    copyEnd: '2030-11-22'
   }
   //用数据源(对象)data渲染Excel模板
   ejsExcel.renderExcelCb(exlBuf, data, function (err, exlBuf2) {
