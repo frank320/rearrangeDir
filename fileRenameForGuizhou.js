@@ -9,9 +9,9 @@
   const ejsExcel = require("ejsexcel")
 
   const args = process.argv.splice(2)
-  const original = args[0] //源目录
 
-  if (!fs.existsSync(original)) {
+  const wrapDir = args[0]
+  if (!fs.existsSync(wrapDir)) {
     console.log('剧集目录路径错误,请检查')
     return
   }
@@ -20,60 +20,71 @@
     return /\.(jpg|png|gif|jepg)$/i.test(fileName)
   }
 
-  const dirs = fs.readdirSync(original) //获取目标目录所有文件名
-  let totalVideos = dirs.length
-  const bundleName = /\\([^\\]+)$/.exec(original)[1]
-
   function isDir(pathName) {//pathName为文件的绝对路径
     const stat = fs.lstatSync(pathName)
     return stat.isDirectory()
   }
 
 
-  for (let dir of dirs) {
-    if (!isDir(path.join(original, dir))) {
-      totalVideos--
+  const bundleDirs = fs.readdirSync(wrapDir)
+
+  for (let bundle of bundleDirs) {
+
+    const original = path.join(wrapDir, bundle)
+    if (!isDir(original)) {
       continue
     }
-    const fileInDir = fs.readdirSync(path.join(original, dir))
-    const filename = fileInDir[0]
-    const newName = `${bundleName}第${dir}集.ts`
-    // 改变当前文件的路径(重命名)
-    fs.renameSync(path.join(original, dir, filename), path.join(original, newName))
-    // fs.unlinkSync(filePath) 删除文件
-    //删除文件夹
-    fs.rmdirSync(path.join(original, dir))
 
-  }
-  console.log('文件重命名完毕')
-  //获得Excel模板的buffer对象
-  try {
-    var exlBuf = fs.readFileSync(path.join(__dirname, './template/guizhouTemplate.xlsx'))
-  } catch (e) {
-    console.log(e)
-    return
-  }
-  const data = {
-    bundleName: bundleName,
-    totalVideos: totalVideos,
-    bundleId: '脆牛',
-    copyStart: '2017-11-22',
-    copyEnd: '2030-11-22'
-  }
-  //用数据源(对象)data渲染Excel模板
-  ejsExcel.renderExcelCb(exlBuf, data, function (err, exlBuf2) {
-    if (err) {
-      //
-      console.log(err)
-      return
+    const dirs = fs.readdirSync(original) //获取目标目录所有文件名
+    let totalVideos = dirs.length
+    const bundleName = /\\([^\\]+)$/.exec(original)[1]
+    for (let dir of dirs) {
+      if (!isDir(path.join(original, dir))) {
+        totalVideos--
+        continue
+      }
+      const fileInDir = fs.readdirSync(path.join(original, dir))
+      const filename = fileInDir[0]
+      const newName = `${bundleName}第${dir}集.ts`
+      // 改变当前文件的路径(重命名)
+      fs.renameSync(path.join(original, dir, filename), path.join(original, newName))
+      // fs.unlinkSync(filePath) 删除文件
+      //删除文件夹
+      fs.rmdirSync(path.join(original, dir))
+
     }
-    var excelName = `${bundleName}.xlsx`
+    console.log(bundle + ' 文件重命名完毕')
+    //获得Excel模板的buffer对象
     try {
-      fs.writeFileSync(path.join(original, excelName), exlBuf2)
+      var exlBuf = fs.readFileSync(path.join(__dirname, './template/guizhouTemplate.xlsx'))
     } catch (e) {
       console.log(e)
       return
     }
-    console.log('生成上载表格成功')
-  })
+    const data = {
+      bundleName: bundleName,
+      totalVideos: totalVideos,
+      bundleId: '脆牛',
+      copyStart: '2017-11-22',
+      copyEnd: '2030-11-22'
+    }
+    //用数据源(对象)data渲染Excel模板
+    ejsExcel.renderExcelCb(exlBuf, data, function (err, exlBuf2) {
+      if (err) {
+        //
+        console.log(err)
+        return
+      }
+      var excelName = `${bundleName}.xlsx`
+      try {
+        fs.writeFileSync(path.join(original, excelName), exlBuf2)
+      } catch (e) {
+        console.log(e)
+        return
+      }
+      console.log(bundle + ' 生成上载表格成功')
+    })
+  }
+
+
 })()
