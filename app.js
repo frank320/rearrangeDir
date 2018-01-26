@@ -7,8 +7,6 @@
   const fs = require('fs')
   const path = require('path')
 
-  //const Bundle = require('./bundle')
-
   const args = process.argv.splice(2)
   const original = args[0] //源目录
 
@@ -23,9 +21,6 @@
 
   const files = fs.readdirSync(original) //获取目标目录所有文件名
 
-  let bundleData = {}
-  let videos = []
-  const bundleName = /\\([^\\]+)$/.exec(original)[1]
 
   function isDir(pathName) {//pathName为文件的绝对路径
     const stat = fs.lstatSync(pathName)
@@ -34,15 +29,15 @@
 
   files.forEach(function (file, index) {
     if (isImg(file)) {
-      console.log(`${file} 是图片文件`)
+      //跳过图片
       return
     }
     if (isDir(path.join(original, file))) {
       //跳过文件夹
       return
     }
-    const filename = /(.+)\.(\w+)$/.exec(file)[1] //获取无后缀文件名
-    const extname = /(.+)\.(\w+)$/.exec(file)[2]//文件后缀名
+    //const filename = /(.+)\.(\w+)$/.exec(file)[1] //获取无后缀文件名
+    //const extname = /(.+)\.(\w+)$/.exec(file)[2]//文件后缀名
 
     //const dir = /^(\d+)([^\d]+)/.exec(filename)[1]
     //const name = /^(\d+)([^\d]+)/.exec(filename)[2]
@@ -60,8 +55,11 @@
     //const dir = filename.slice(4)
     //const name = `第${dir}集`
 
-    const dir = filename.slice(2).startsWith('0') ? filename.slice(2).slice(1) : filename.slice(2)
-    const name = `第${dir}集`
+    //const dir = filename.slice(2).startsWith('0') ? filename.slice(2).slice(1) : filename.slice(2)
+    //const name = `第${dir}集`
+
+    const dir = parseInt(file.slice(0, 2)) + ''
+    const newName = file.slice(3)
 
     //创建一个文件夹
     const fileDir = path.join(original, dir)
@@ -69,29 +67,8 @@
       fs.mkdirSync(fileDir)
     }
     // 改变当前文件的路径(重命名)
-    fs.renameSync(path.join(original, file), path.join(fileDir, `${name}.${extname}`))
-    //videos.push({
-    //  index: dir,
-    //  name: name
-    //})
+    fs.renameSync(path.join(original, file), path.join(fileDir, newName))
   })
   console.log('文件处理完毕')
-  ////排序
-  //videos.sort(function (a, b) {
-  //  return (a.index - b.index)
-  //})
-  ////存入数据库
-  //const bundle = new Bundle(Object.assign(bundleData, {
-  //  bundleName, videos
-  //}))
-  //
-  //bundle
-  //  .save()
-  //  .then(()=> {
-  //    console.log('剧集存入数据库成功')
-  //  })
-  //  .catch(err => {
-  //    console.log('剧集存入数据库出错:', err)
-  //  })
 
 })()
